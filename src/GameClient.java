@@ -10,11 +10,8 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.Socket;
-import java.util.Enumeration;
 
 public class GameClient extends Application {
     private Circle circle;
@@ -63,42 +60,8 @@ public class GameClient extends Application {
     }
 
     private void connectToServer() {
-        try {
-            InetAddress localAddress = null;
-
-            // Enumerate all network interfaces
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                // Ignore loopback and non-up interfaces
-                if (iface.isLoopback() || !iface.isUp())
-                    continue;
-
-                // Iterate through the associated IP addresses
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while (addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    // Check if the address is IPv4 and not a loopback address
-                    if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
-                        localAddress = addr;
-                        break;
-                    }
-                }
-                // Break out of the loop if a suitable address is found
-                if (localAddress != null)
-                    break;
-            }
-
-            if (localAddress == null) {
-                System.out.println("Unable to detect local IP address.");
-                return;
-            }
-
-            String serverAddress = localAddress.getHostAddress();
-            int serverPort = 59090;
-
-            Socket socket = new Socket(serverAddress, serverPort);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        try (Socket socket = new Socket(InetAddress.getLocalHost(), 59090);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             out = new PrintWriter(socket.getOutputStream(), true);
 
             String message;
