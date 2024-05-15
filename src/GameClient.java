@@ -13,6 +13,10 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
+class Positions implements Serializable {
+
+}
+
 public class GameClient extends Application {
     private Circle circle;
     private PrintWriter out;
