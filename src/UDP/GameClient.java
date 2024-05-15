@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameClient extends Application {
-    private static final String SERVER_ADDRESS = "localhost";
+    private static final String SERVER_ADDRESS = "192.168.100.197";
     private static final int SERVER_PORT = 12345;
     private int playerId;
     private double playerX = 100;
@@ -56,6 +56,7 @@ public class GameClient extends Application {
 
     private void connectToServer() {
         try {
+            System.out.println("Here");
             clientSocket = new DatagramSocket();
 
             byte[] receiveBuffer = new byte[1024];

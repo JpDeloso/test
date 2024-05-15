@@ -9,13 +9,16 @@ public class GameServer {
     private static final int PORT = 12345;
     private GameState gameState = new GameState();
     private ConcurrentHashMap<SocketAddress, Integer> clientMap = new ConcurrentHashMap<>();
+    private static DatagramSocket serverSocket;
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws SocketException {
+        serverSocket = new DatagramSocket(PORT);
         new GameServer().start();
     }
 
     public void start() {
-        try (DatagramSocket serverSocket = new DatagramSocket(PORT)) {
+        try {
             System.out.println("UDP Server started on port " + PORT);
 
             byte[] receiveBuffer = new byte[1024];
@@ -24,12 +27,17 @@ public class GameServer {
             while (true) {
                 DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                 serverSocket.receive(receivePacket);
+                System.out.println(receivePacket.getSocketAddress());
 
                 ByteArrayInputStream bais = new ByteArrayInputStream(receivePacket.getData());
                 ObjectInputStream ois = new ObjectInputStream(bais);
                 Player player = (Player) ois.readObject();
 
-                clientMap.put(receivePacket.getSocketAddress(), player.getId());
+                if (clientMap.containsKey(receivePacket.getSocketAddress())) {
+                    clientMap.put(receivePacket.getSocketAddress(), player.getId());
+                } else {
+                    clientMap.put(receivePacket.getSocketAddress(), gameState.getPlayers().size());
+                }
                 gameState.updatePlayer(player);
 
                 // Broadcast updated game state to all clients
